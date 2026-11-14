@@ -32,6 +32,7 @@ hiltExt = "1.4.0"
 jsoup = "1.24.1"
 junit4 = "4.13.2"
 junitExt = "1.3.0"
+koreanRomanizer = "2.0.1"
 kotest = "6.2.6"
 kotlin = "2.4.21"
 kotlinxCoroutines = "1.11.0"
@@ -112,6 +113,7 @@ hilt-ext-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.r
 hilt-ext-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltExt" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
+koreanRomanizer = { module = "net.crizin:korean-romanizer", version.ref = "koreanRomanizer" }
 kotest = { group = "io.kotest", name = "kotest-assertions-core-jvm", version.ref = "kotest" }
 kotlin-metadataJvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin" }
 kotlinx-coroutinesCore = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }

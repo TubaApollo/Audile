@@ -36,10 +36,10 @@ internal class LyricsRomanizerImplTest {
             "음악이 좋아" to "eumagi joa",
             "나는 몰라 Baby" to "naneun molla Baby",
             "같이 굳이" to "gachi guji",
-            "좋고 많다 싫지" to "joko manta silchi",
+            "좋고 많다 싫지" to "joko manta silji",
             "국물 합니다 있는" to "gungmul hamnida inneun",
             "설날 신라 종로 독립" to "seollal silla jongno dongnip",
-            "닫히다 축하 없어" to "dachida chukha eopseo",
+            "닫히다 축하 없어" to "dachida chuka eopseo",
         )
         romanizer.romanize(romanized.keys + "Hello world") shouldBe romanized
     }

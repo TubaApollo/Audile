@@ -4,10 +4,11 @@ import com.atilika.kuromoji.ipadic.Token
 import com.atilika.kuromoji.ipadic.Tokenizer
 import com.mrsep.musicrecognizer.core.common.di.DefaultDispatcher
 import com.mrsep.musicrecognizer.core.domain.track.LyricsRomanizer
-import com.mrsep.musicrecognizer.core.metadata.lyrics.HangulRomanizer.isHangulSyllable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import net.crizin.KoreanRomanizer
 import java.text.Normalizer
+import java.util.Locale
 import javax.inject.Inject
 
 internal class LyricsRomanizerImpl @Inject constructor(
@@ -23,7 +24,7 @@ internal class LyricsRomanizerImpl @Inject constructor(
         return withContext(defaultDispatcher) {
             lines.mapNotNull { line ->
                 when {
-                    line.any { it.isHangulSyllable() } -> line to HangulRomanizer.romanize(line)
+                    line.contains(HANGUL_WORD) -> line to romanizeKoreanLine(line)
                     isJapanese && line.any { it.isKana() || it.isKanji() } -> line to romanizeLine(line)
                     else -> null
                 }
@@ -47,6 +48,11 @@ internal class LyricsRomanizerImpl @Inject constructor(
             }
         }
         return Normalizer.normalize(kanaToRomaji(reading), Normalizer.Form.NFKC)
+    }
+
+    // Only Korean words are passed to the romanizer, because it capitalizes every word
+    private fun romanizeKoreanLine(line: String) = line.replace(HANGUL_WORD) { word ->
+        KoreanRomanizer.romanize(word.value).lowercase(Locale.ROOT)
     }
 
     private fun Token.attachesToPreviousWord() = when (partOfSpeechLevel1) {
@@ -94,6 +100,7 @@ internal class LyricsRomanizerImpl @Inject constructor(
         const val POS_SUFFIX = "接尾"
         const val VOWELS = "aiueo"
         const val OPENING_BRACKETS = "「『（(［["
+        val HANGUL_WORD = Regex("[가-힣]+")
 
         val COPULA_CONJUGATIONS = setOf("特殊・ダ", "特殊・デス")
         val ATTACHED_PARTICLES = setOf("て", "で", "ば")

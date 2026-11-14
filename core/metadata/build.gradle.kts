@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.stringSimilarity)
     implementation(libs.jsoup)
     implementation(libs.kuromoji.ipadic)
+    implementation(libs.koreanRomanizer)
 
     testImplementation(libs.junit4)
     testImplementation(libs.kotest)
