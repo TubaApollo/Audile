@@ -30,6 +30,11 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk@4.1.2 --locked
 
+      # Otherwise the debug and release builds install it concurrently and fail
+      - name: Install Rust toolchain
+        working-directory: core/recognition/native/songrecfp
+        run: rustup toolchain install
+
       - name: Run unit tests
         run: ./gradlew :core:metadata:testDebugUnitTest
 
