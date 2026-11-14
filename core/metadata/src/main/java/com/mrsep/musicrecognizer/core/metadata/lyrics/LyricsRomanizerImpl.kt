@@ -4,6 +4,7 @@ import com.atilika.kuromoji.ipadic.Token
 import com.atilika.kuromoji.ipadic.Tokenizer
 import com.mrsep.musicrecognizer.core.common.di.DefaultDispatcher
 import com.mrsep.musicrecognizer.core.domain.track.LyricsRomanizer
+import com.mrsep.musicrecognizer.core.metadata.lyrics.HangulRomanizer.isHangulSyllable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.text.Normalizer
@@ -18,11 +19,15 @@ internal class LyricsRomanizerImpl @Inject constructor(
 
     override suspend fun romanize(lines: List<String>): Map<String, String> {
         // Kana distinguishes Japanese from Chinese, which also uses kanji
-        if (lines.none { line -> line.any { it.isKana() } }) return emptyMap()
+        val isJapanese = lines.any { line -> line.any { it.isKana() } }
         return withContext(defaultDispatcher) {
-            lines
-                .filter { line -> line.any { it.isKana() || it.isKanji() } }
-                .associateWith(::romanizeLine)
+            lines.mapNotNull { line ->
+                when {
+                    line.any { it.isHangulSyllable() } -> line to HangulRomanizer.romanize(line)
+                    isJapanese && line.any { it.isKana() || it.isKanji() } -> line to romanizeLine(line)
+                    else -> null
+                }
+            }.toMap()
         }
     }
 

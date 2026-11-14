@@ -29,6 +29,17 @@ internal class LyricsRomanizerImplTest {
     }
 
     @Test
+    fun romanizesKoreanLines() = runTest {
+        val romanizer = LyricsRomanizerImpl(StandardTestDispatcher(testScheduler))
+        val lines = listOf("사랑해요", "음악이 좋아", "나는 몰라 Baby", "Hello world")
+        romanizer.romanize(lines) shouldBe mapOf(
+            "사랑해요" to "saranghaeyo",
+            "음악이 좋아" to "eumagi joa",
+            "나는 몰라 Baby" to "naneun molla Baby",
+        )
+    }
+
+    @Test
     fun ignoresNonJapaneseLyrics() = runTest {
         val romanizer = LyricsRomanizerImpl(StandardTestDispatcher(testScheduler))
         romanizer.romanize(listOf("月亮代表我的心", "Hello world")).shouldBeEmpty()
