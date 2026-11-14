@@ -272,30 +272,6 @@ internal fun RecognitionScreen(
                     .padding(8.dp)
             )
         }
-        nowPlaying?.let { track ->
-            ElevatedAssistChip(
-                onClick = { onNavigateToLyricsScreen(track.id) },
-                label = {
-                    Text(
-                        text = listOf(track.title, track.artist)
-                            .filter { it.isNotBlank() }
-                            .joinToString(" · "),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(UiR.drawable.outline_lyrics_24),
-                        contentDescription = stringResource(StringsR.string.show_lyrics),
-                        modifier = Modifier.size(AssistChipDefaults.IconSize)
-                    )
-                },
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = 48.dp, vertical = 8.dp)
-            )
-        }
         Box {
             AnimatedVisibility(
                 visible = recognizeStatus.isNotDone(),
@@ -491,6 +467,31 @@ internal fun RecognitionScreen(
                 }
                 vibrated.value = true
             }
+        }
+        // Placed above the scrollable content to receive clicks
+        nowPlaying?.let { track ->
+            ElevatedAssistChip(
+                onClick = { onNavigateToLyricsScreen(track.id) },
+                label = {
+                    Text(
+                        text = listOf(track.title, track.artist)
+                            .filter { it.isNotBlank() }
+                            .joinToString(" · "),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(UiR.drawable.outline_lyrics_24),
+                        contentDescription = stringResource(StringsR.string.show_lyrics),
+                        modifier = Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 48.dp, vertical = 8.dp)
+            )
         }
         Box(
             modifier = Modifier
