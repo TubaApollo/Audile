@@ -59,6 +59,7 @@ message UserPreferencesProto {
     bool is_bold = 19;
     bool is_high_contrast = 20;
     bool align_to_start = 42;
+    bool show_romaji = 57;
   }
 
   LyricsStyleProto lyrics_style = 21;
@@ -144,7 +145,7 @@ message UserPreferencesProto {
 
   bool allow_queue_on_low_battery = 56;
 
-  // NEXT AVAILABLE ID: 57
+  // NEXT AVAILABLE ID: 58
 
 }
 

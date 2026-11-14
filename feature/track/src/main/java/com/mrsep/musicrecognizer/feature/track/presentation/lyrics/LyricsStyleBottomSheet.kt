@@ -92,6 +92,13 @@ internal fun LyricsStyleBottomSheet(
                         onStyleChanged(style.copy(isHighContrast = !style.isHighContrast))
                     }
                 )
+                BottomBarSwitch(
+                    title = stringResource(StringsR.string.show_romaji),
+                    checked = style.showRomaji,
+                    onClick = {
+                        onStyleChanged(style.copy(showRomaji = !style.showRomaji))
+                    }
+                )
             }
             Spacer(Modifier.height(16.dp))
         }

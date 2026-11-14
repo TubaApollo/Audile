@@ -1,0 +1,36 @@
+package com.mrsep.musicrecognizer.core.metadata.lyrics
+
+import io.kotest.matchers.maps.shouldBeEmpty
+import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.Test
+
+@Suppress("SpellCheckingInspection")
+internal class LyricsRomanizerImplTest {
+
+    @Test
+    fun romanizesJapaneseLines() = runTest {
+        val romanizer = LyricsRomanizerImpl(StandardTestDispatcher(testScheduler))
+        val lines = listOf(
+            "ありがとう",
+            "東京は雨",
+            "ちょっと待ってください",
+            "コーヒーを飲んだ",
+            "Hello world",
+            "",
+        )
+        romanizer.romanize(lines) shouldBe mapOf(
+            "ありがとう" to "arigatou",
+            "東京は雨" to "toukyou wa ame",
+            "ちょっと待ってください" to "chotto matte kudasai",
+            "コーヒーを飲んだ" to "koohii o nonda",
+        )
+    }
+
+    @Test
+    fun ignoresNonJapaneseLyrics() = runTest {
+        val romanizer = LyricsRomanizerImpl(StandardTestDispatcher(testScheduler))
+        romanizer.romanize(listOf("月亮代表我的心", "Hello world")).shouldBeEmpty()
+    }
+}

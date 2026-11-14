@@ -106,7 +106,8 @@ internal fun UserPreferencesProto.toDomain() = UserPreferences(
         },
         isBold = lyricsStyle.isBold,
         isHighContrast = lyricsStyle.isHighContrast,
-        alignToStart = lyricsStyle.alignToStart
+        alignToStart = lyricsStyle.alignToStart,
+        showRomaji = lyricsStyle.showRomaji,
     ),
     trackFilter = TrackFilter(
         favoritesMode = when (trackFilter.favoritesMode) {

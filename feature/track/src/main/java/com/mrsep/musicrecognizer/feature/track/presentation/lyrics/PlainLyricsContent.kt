@@ -57,6 +57,7 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 internal fun PlainLyricsContent(
     lyrics: String,
+    romaji: Map<String, String>,
     title: String,
     artist: String,
     artworkThumbUrl: String?,
@@ -188,6 +189,7 @@ internal fun PlainLyricsContent(
                 lines.forEachIndexed { index, line ->
                     LyricLine(
                         line = line,
+                        romaji = romaji[line],
                         style = lyricsTextStyle,
                         isSelected = multiSelectionState.isSelected(index),
                         onClick = {
@@ -260,6 +262,7 @@ internal fun PlainLyricsContent(
 private fun LyricLine(
     modifier: Modifier = Modifier,
     line: String,
+    romaji: String?,
     style: TextStyle,
     selectionContainerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     isSelected: Boolean,
@@ -272,7 +275,7 @@ private fun LyricLine(
         label = "selectionContainerAlpha"
     )
     Text(
-        text = line,
+        text = lyricLineText(line, romaji),
         style = style,
         modifier = modifier
             .drawBehind {

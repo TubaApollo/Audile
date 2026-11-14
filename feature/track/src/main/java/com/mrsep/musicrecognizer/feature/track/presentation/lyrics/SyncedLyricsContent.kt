@@ -68,10 +68,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -98,12 +104,14 @@ import com.mrsep.musicrecognizer.core.strings.R as StringsR
 
 internal const val SelectionAnimationStiffness = Spring.StiffnessMedium
 private const val InactiveTextAlpha = 0.5f
+private val RomajiSpanStyle = SpanStyle(fontSize = 0.7.em, fontWeight = FontWeight.Normal)
 private const val ScrollAnimationDurationMs = 350
 private val ScrollAnimationEasing = FastOutSlowInEasing
 
 @Composable
 internal fun SyncedLyricsContent(
     lyrics: SyncedLyrics,
+    romaji: Map<String, String>,
     title: String,
     artist: String,
     artworkThumbUrl: String?,
@@ -306,6 +314,7 @@ internal fun SyncedLyricsContent(
                     if (line.isNotBlank()) {
                         LyricLine(
                             line = line,
+                            romaji = romaji[line],
                             time = timestamp,
                             nextTime = nextTimestamp,
                             activeStart = activeStart,
@@ -422,6 +431,7 @@ internal fun SyncedLyricsContent(
 private fun LyricLine(
     modifier: Modifier = Modifier,
     line: String,
+    romaji: String?,
     time: Duration,
     nextTime: Duration,
     activeStart: Duration,
@@ -459,7 +469,7 @@ private fun LyricLine(
         label = "selectionContainerAlpha"
     )
     Text(
-        text = line,
+        text = lyricLineText(line, romaji),
         style = style,
         modifier = modifier
             .graphicsLayer {
@@ -682,6 +692,14 @@ private fun durationBetween(startInclusive: Instant, endExclusive: Instant): Dur
 
 private fun List<SyncedLyrics.Line>.joinLines(indexes: Set<Int>): String {
     return joinLines(indexes) { it.content }
+}
+
+internal fun lyricLineText(line: String, romaji: String?): AnnotatedString {
+    if (romaji == null) return AnnotatedString(line)
+    return buildAnnotatedString {
+        appendLine(line)
+        withStyle(RomajiSpanStyle) { append(romaji) }
+    }
 }
 
 internal fun <T> List<T>.joinLines(indexes: Set<Int>, transform: ((T) -> CharSequence)? = null): String {

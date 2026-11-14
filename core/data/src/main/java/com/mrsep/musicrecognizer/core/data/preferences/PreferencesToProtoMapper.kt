@@ -95,6 +95,7 @@ internal fun LyricsStyle.toProto() = lyricsStyleProto {
     isBold = this@toProto.isBold
     isHighContrast = this@toProto.isHighContrast
     alignToStart = this@toProto.alignToStart
+    showRomaji = this@toProto.showRomaji
 }
 
 internal fun FontSize.toProto() = when (this) {

@@ -9,12 +9,19 @@ import com.mrsep.musicrecognizer.core.domain.preferences.ThemeMode
 import com.mrsep.musicrecognizer.core.domain.preferences.PreferencesRepository
 import com.mrsep.musicrecognizer.core.domain.recognition.ResultNotificationManager
 import com.mrsep.musicrecognizer.core.domain.recognition.TrackMetadataFetchManager
+import com.mrsep.musicrecognizer.core.domain.track.LyricsRomanizer
 import com.mrsep.musicrecognizer.core.domain.track.TrackRepository
 import com.mrsep.musicrecognizer.core.domain.track.model.Lyrics
+import com.mrsep.musicrecognizer.core.domain.track.model.PlainLyrics
+import com.mrsep.musicrecognizer.core.domain.track.model.SyncedLyrics
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -27,15 +34,33 @@ internal class LyricsViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository,
     trackMetadataFetchManager: TrackMetadataFetchManager,
     private val resultNotificationManager: ResultNotificationManager,
+    private val lyricsRomanizer: LyricsRomanizer,
 ) : ViewModel() {
 
     private val args = LyricsScreen.Args(savedStateHandle)
 
+    // Emitted separately so that the lyrics are not held back by the romanization
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val romajiFlow = combine(
+        flow = trackRepository.getTrackFlow(args.trackId).map { track -> track?.lyrics },
+        flow2 = preferencesRepository.userPreferencesFlow.map { it.lyricsStyle.showRomaji },
+    ) { lyrics, showRomaji -> lyrics.takeIf { showRomaji } }
+        .distinctUntilChanged()
+        .transformLatest { lyrics ->
+            emit(emptyMap())
+            when (lyrics) {
+                is PlainLyrics -> emit(lyricsRomanizer.romanize(lyrics.plain.lines()))
+                is SyncedLyrics -> emit(lyricsRomanizer.romanize(lyrics.lines.map { it.content }))
+                null -> Unit
+            }
+        }
+
     val uiStateStream = combine(
         flow = trackRepository.getTrackFlow(args.trackId),
         flow2 = preferencesRepository.userPreferencesFlow,
-        flow3 = trackMetadataFetchManager.isLyricsFetcherRunning(args.trackId)
-    ) { track, preferences, isLyricsFetcherRunning ->
+        flow3 = trackMetadataFetchManager.isLyricsFetcherRunning(args.trackId),
+        flow4 = romajiFlow,
+    ) { track, preferences, isLyricsFetcherRunning, romaji ->
         if (track == null) return@combine LyricsUiState.TrackNotFound
         if (isLyricsFetcherRunning) return@combine LyricsUiState.Loading
         track.lyrics?.let { lyrics ->
@@ -46,6 +71,7 @@ internal class LyricsViewModel @Inject constructor(
                 artworkThumbUrl = track.artworkThumbUrl,
                 artworkUrl = track.artworkUrl,
                 lyrics = lyrics,
+                romaji = romaji,
                 trackDuration = track.duration,
                 recognizedAt = track.recognizedAt,
                 recognitionDate = track.recognitionDate,
@@ -100,6 +126,7 @@ internal sealed class LyricsUiState {
         val artworkThumbUrl: String?,
         val artworkUrl: String?,
         val lyrics: Lyrics,
+        val romaji: Map<String, String>,
         val trackDuration: Duration?,
         val recognizedAt: Duration?,
         val recognitionDate: Instant,

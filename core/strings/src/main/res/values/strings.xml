@@ -200,6 +200,7 @@
     <string name="align_to_start">Align to start</string>
     <string name="bold_text">Bold text</string>
     <string name="high_contrast_text">High-contrast text</string>
+    <string name="show_romaji">Romaji for Japanese lyrics</string>
     <!-- Preferences screen -->
     <string name="preferences">Preferences</string>
     <string name="pref_group_recognition">Recognition</string>

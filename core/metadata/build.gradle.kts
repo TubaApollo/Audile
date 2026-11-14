@@ -9,6 +9,7 @@ android {
 
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 }
 
@@ -20,6 +21,7 @@ dependencies {
     implementation(libs.kotlinx.serializationJson)
     implementation(libs.stringSimilarity)
     implementation(libs.jsoup)
+    implementation(libs.kuromoji.ipadic)
 
     testImplementation(libs.junit4)
     testImplementation(libs.kotest)

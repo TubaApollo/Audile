@@ -93,6 +93,7 @@ internal fun LyricsScreen(
                     when (val lyrics = uiState.lyrics) {
                         is PlainLyrics -> PlainLyricsContent(
                             lyrics = uiState.lyrics.plain,
+                            romaji = uiState.romaji,
                             title = uiState.title,
                             artist = uiState.artist,
                             artworkThumbUrl = uiState.artworkThumbUrl,
@@ -112,6 +113,7 @@ internal fun LyricsScreen(
                         )
                         is SyncedLyrics -> SyncedLyricsContent(
                             lyrics = lyrics,
+                            romaji = uiState.romaji,
                             title = uiState.title,
                             artist = uiState.artist,
                             artworkThumbUrl = uiState.artworkThumbUrl,
