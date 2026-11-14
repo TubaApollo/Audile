@@ -136,7 +136,7 @@ class MusicRecognizerApp : Application(), SingletonImageLoader.Factory, Configur
         ShortcutManagerCompat.setDynamicShortcuts(this, getShortcuts())
     }
 
-    private fun getShortcuts() = listOf(
+    fun getShortcuts() = listOf(
         recognitionShortcut(),
         backgroundRecognitionShortcut(),
         showFloatingButtonShortcut(),
