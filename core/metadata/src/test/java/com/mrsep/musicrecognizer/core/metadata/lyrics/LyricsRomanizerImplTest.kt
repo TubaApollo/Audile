@@ -41,7 +41,7 @@ internal class LyricsRomanizerImplTest {
             "설날 신라 종로 독립" to "seollal silla jongno dongnip",
             "닫히다 축하 없어" to "dachida chuka eopseo",
         )
-        romanizer.romanize(romanized.keys + "Hello world") shouldBe romanized
+        romanizer.romanize(romanized.keys.toList() + "Hello world") shouldBe romanized
     }
 
     @Test
