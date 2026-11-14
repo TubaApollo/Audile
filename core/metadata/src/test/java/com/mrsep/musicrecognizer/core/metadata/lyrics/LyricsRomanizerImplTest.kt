@@ -31,12 +31,17 @@ internal class LyricsRomanizerImplTest {
     @Test
     fun romanizesKoreanLines() = runTest {
         val romanizer = LyricsRomanizerImpl(StandardTestDispatcher(testScheduler))
-        val lines = listOf("사랑해요", "음악이 좋아", "나는 몰라 Baby", "Hello world")
-        romanizer.romanize(lines) shouldBe mapOf(
+        val romanized = mapOf(
             "사랑해요" to "saranghaeyo",
             "음악이 좋아" to "eumagi joa",
             "나는 몰라 Baby" to "naneun molla Baby",
+            "같이 굳이" to "gachi guji",
+            "좋고 많다 싫지" to "joko manta silchi",
+            "국물 합니다 있는" to "gungmul hamnida inneun",
+            "설날 신라 종로 독립" to "seollal silla jongno dongnip",
+            "닫히다 축하 없어" to "dachida chukha eopseo",
         )
+        romanizer.romanize(romanized.keys + "Hello world") shouldBe romanized
     }
 
     @Test
