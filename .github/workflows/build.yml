@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  push:
+    branches-ignore: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install NDK
+        run: |
+          NDK_VERSION=$(grep '^ndk = ' gradle/libs.versions.toml | cut -d '"' -f 2)
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$NDK_VERSION"
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk@4.1.2 --locked
+
+      - name: Run unit tests
+        run: ./gradlew :core:metadata:testDebugUnitTest
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audile-debug
+          path: app/build/outputs/apk/debug/*.apk
