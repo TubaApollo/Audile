@@ -85,6 +85,8 @@ internal class LyricsTranslatorImpl @Inject constructor(
                     model = config.model,
                     maxTokens = 64_000,
                     stream = true,
+                    // Keep the thinking short so that the first lines arrive sooner
+                    outputConfig = ClaudeMessagesRequestJson.OutputConfigJson(effort = "low"),
                     system = "You translate song lyrics into $language. " +
                             "The user message lists the lyric lines as \"<number>|<line>\". " +
                             "Translate every line in the context of the whole song, keeping " +

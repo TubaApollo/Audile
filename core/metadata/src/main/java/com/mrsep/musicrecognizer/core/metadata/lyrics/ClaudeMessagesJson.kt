@@ -10,11 +10,17 @@ internal data class ClaudeMessagesRequestJson(
     @SerialName("stream") val stream: Boolean,
     @SerialName("system") val system: String,
     @SerialName("messages") val messages: List<MessageJson>,
+    @SerialName("output_config") val outputConfig: OutputConfigJson,
 ) {
     @Serializable
     data class MessageJson(
         @SerialName("role") val role: String,
         @SerialName("content") val content: String,
+    )
+
+    @Serializable
+    data class OutputConfigJson(
+        @SerialName("effort") val effort: String,
     )
 }
 
