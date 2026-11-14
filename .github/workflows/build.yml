@@ -33,10 +33,15 @@ jobs:
       - name: Run unit tests
         run: ./gradlew :core:metadata:testDebugUnitTest
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
+      - name: Build debug and unsigned release APKs
+        run: ./gradlew assembleDebug assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
           name: audile-debug
           path: app/build/outputs/apk/debug/*.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audile-release-unsigned
+          path: app/build/outputs/apk/release/*.apk
