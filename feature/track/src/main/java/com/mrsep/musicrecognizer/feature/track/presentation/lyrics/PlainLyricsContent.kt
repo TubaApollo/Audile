@@ -277,8 +277,10 @@ private fun LyricLine(
         animationSpec = spring(stiffness = SelectionAnimationStiffness),
         label = "selectionContainerAlpha"
     )
-    Text(
-        text = lyricLineText(line, romaji, translation),
+    LyricLineText(
+        line = line,
+        romaji = romaji,
+        translation = translation,
         style = style,
         modifier = modifier
             .drawBehind {

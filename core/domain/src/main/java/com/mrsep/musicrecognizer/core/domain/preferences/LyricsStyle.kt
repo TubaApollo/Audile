@@ -7,4 +7,5 @@ data class LyricsStyle(
     val alignToStart: Boolean,
     val showRomaji: Boolean,
     val showTranslation: Boolean,
+    val alwaysTranslate: Boolean,
 )

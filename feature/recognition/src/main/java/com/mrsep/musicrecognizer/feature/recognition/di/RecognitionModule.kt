@@ -5,8 +5,10 @@ import com.mrsep.musicrecognizer.core.domain.recognition.EnqueuedRecognitionSche
 import com.mrsep.musicrecognizer.core.domain.recognition.RecognitionInteractor
 import com.mrsep.musicrecognizer.core.domain.recognition.ResultNotificationManager
 import com.mrsep.musicrecognizer.core.domain.recognition.TrackMetadataFetchManager
+import com.mrsep.musicrecognizer.core.domain.track.NowPlayingMonitor
 import com.mrsep.musicrecognizer.feature.recognition.domain.AutoRecognitionInteractorImpl
 import com.mrsep.musicrecognizer.feature.recognition.domain.RecognitionInteractorImpl
+import com.mrsep.musicrecognizer.feature.recognition.platform.NowPlayingMonitorImpl
 import com.mrsep.musicrecognizer.feature.recognition.scheduler.TrackMetadataFetchManagerImpl
 import com.mrsep.musicrecognizer.feature.recognition.presentation.recognitionscreen.ScreenRecognitionController
 import com.mrsep.musicrecognizer.feature.recognition.presentation.recognitionscreen.ScreenRecognitionControllerImpl
@@ -47,6 +49,11 @@ internal interface RecognitionModule {
     @Singleton
     fun bindTrackMetadataFetchManager(impl: TrackMetadataFetchManagerImpl):
             TrackMetadataFetchManager
+
+    @Binds
+    @Singleton
+    fun bindNowPlayingMonitor(impl: NowPlayingMonitorImpl):
+            NowPlayingMonitor
 
     @Binds
     @Singleton

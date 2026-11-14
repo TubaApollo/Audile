@@ -61,6 +61,7 @@ message UserPreferencesProto {
     bool align_to_start = 42;
     bool show_romaji = 57;
     bool show_translation = 59;
+    bool always_translate = 60;
   }
 
   LyricsStyleProto lyrics_style = 21;
@@ -148,7 +149,7 @@ message UserPreferencesProto {
 
   LyricsTranslationConfigProto lyrics_translation_config = 58;
 
-  // NEXT AVAILABLE ID: 60
+  // NEXT AVAILABLE ID: 61
 
 }
 

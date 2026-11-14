@@ -15,6 +15,7 @@ object RecognitionScreen {
         pendingRecognitionRequest: RecognitionRequest?,
         onResetPendingRecognitionRequest: () -> Unit,
         onNavigateToTrackScreen: (trackId: String, from: NavBackStackEntry) -> Unit,
+        onNavigateToLyricsScreen: (trackId: String, from: NavBackStackEntry) -> Unit,
         onNavigateToQueueScreen: (recognitionId: Int?, from: NavBackStackEntry) -> Unit,
         onNavigateToPreferencesScreen: (from: NavBackStackEntry) -> Unit
     ) {
@@ -24,6 +25,9 @@ object RecognitionScreen {
                 onResetPendingRecognitionRequest = onResetPendingRecognitionRequest,
                 onNavigateToTrackScreen = { trackId ->
                     onNavigateToTrackScreen(trackId, backStackEntry)
+                },
+                onNavigateToLyricsScreen = { trackId ->
+                    onNavigateToLyricsScreen(trackId, backStackEntry)
                 },
                 onNavigateToQueueScreen = { recognitionId ->
                     onNavigateToQueueScreen(recognitionId, backStackEntry)

@@ -123,6 +123,15 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".feature.recognition.service.NowPlayingListenerService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".feature.recognition.service.DisableRecognitionControlServiceReceiver"
             android:exported="false" />

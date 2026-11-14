@@ -108,6 +108,14 @@ internal fun LyricsStyleBottomSheet(
                     },
                     enabled = translationAvailable,
                 )
+                BottomBarSwitch(
+                    title = stringResource(StringsR.string.always_translate),
+                    checked = style.alwaysTranslate,
+                    onClick = {
+                        onStyleChanged(style.copy(alwaysTranslate = !style.alwaysTranslate))
+                    },
+                    enabled = translationAvailable && style.showTranslation,
+                )
             }
             Spacer(Modifier.height(16.dp))
         }

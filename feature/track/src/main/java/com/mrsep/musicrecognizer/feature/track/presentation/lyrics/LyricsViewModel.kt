@@ -12,6 +12,7 @@ import com.mrsep.musicrecognizer.core.domain.recognition.TrackMetadataFetchManag
 import com.mrsep.musicrecognizer.core.domain.recognition.model.NetworkResult
 import com.mrsep.musicrecognizer.core.domain.track.LyricsRomanizer
 import com.mrsep.musicrecognizer.core.domain.track.LyricsTranslator
+import com.mrsep.musicrecognizer.core.domain.track.NowPlayingMonitor
 import com.mrsep.musicrecognizer.core.domain.track.TrackRepository
 import com.mrsep.musicrecognizer.core.domain.track.model.Lyrics
 import com.mrsep.musicrecognizer.core.domain.track.model.PlainLyrics
@@ -19,6 +20,7 @@ import com.mrsep.musicrecognizer.core.domain.track.model.SyncedLyrics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -40,19 +42,23 @@ internal class LyricsViewModel @Inject constructor(
     private val resultNotificationManager: ResultNotificationManager,
     private val lyricsRomanizer: LyricsRomanizer,
     private val lyricsTranslator: LyricsTranslator,
+    private val nowPlayingMonitor: NowPlayingMonitor,
 ) : ViewModel() {
 
     private val args = LyricsScreen.Args(savedStateHandle)
 
-    private val lyricsLinesFlow = trackRepository.getTrackFlow(args.trackId)
-        .map { track ->
-            when (val lyrics = track?.lyrics) {
-                is PlainLyrics -> lyrics.plain.lines()
-                is SyncedLyrics -> lyrics.lines.map { it.content }
-                null -> emptyList()
-            }
-        }
+    private val trackFlow = if (args.trackId == NowPlayingMonitor.TRACK_ID) {
+        nowPlayingMonitor.trackWithLyricsFlow
+    } else {
+        trackRepository.getTrackFlow(args.trackId)
+    }
+
+    private val lyricsLinesFlow = trackFlow
+        .map { track -> track?.lyrics?.contentLines().orEmpty() }
         .distinctUntilChanged()
+
+    // Lyrics for which the translation is requested by the user
+    private val translationRequestedLines = MutableStateFlow<List<String>?>(null)
 
     // Emitted separately so that the lyrics are not held back by the romanization
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -66,29 +72,32 @@ internal class LyricsViewModel @Inject constructor(
             lines?.let { emit(lyricsRomanizer.romanize(lines)) }
         }
 
-    // Emits null if the translation has failed
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val translationFlow: Flow<Map<String, String>?> = combine(
+    private val translationFlow: Flow<TranslationState> = combine(
         flow = lyricsLinesFlow,
-        flow2 = preferencesRepository.userPreferencesFlow.map { preferences ->
-            preferences.lyricsTranslationConfig.takeIf { config ->
-                preferences.lyricsStyle.showTranslation && config.apiKey.isNotBlank()
-            }
-        },
-    ) { lines, config -> config?.let { lines to config } }
+        flow2 = preferencesRepository.userPreferencesFlow,
+        flow3 = translationRequestedLines,
+    ) { lines, preferences, requestedLines ->
+        val style = preferences.lyricsStyle
+        val config = preferences.lyricsTranslationConfig
+        val isActive = style.showTranslation && config.apiKey.isNotBlank() &&
+                (style.alwaysTranslate || requestedLines == lines)
+        if (isActive) lines to config else null
+    }
         .distinctUntilChanged()
         .transformLatest { request ->
-            emit(emptyMap())
+            emit(TranslationState(isActive = request != null, lines = emptyMap()))
             request?.let { (lines, config) ->
                 emitAll(
-                    lyricsTranslator.translate(lines, config)
-                        .map { result -> (result as? NetworkResult.Success)?.data }
+                    lyricsTranslator.translate(lines, config).map { result ->
+                        TranslationState(isActive = true, lines = (result as? NetworkResult.Success)?.data)
+                    }
                 )
             }
         }
 
     val uiStateStream = combine(
-        flow = trackRepository.getTrackFlow(args.trackId),
+        flow = trackFlow,
         flow2 = preferencesRepository.userPreferencesFlow,
         flow3 = trackMetadataFetchManager.isLyricsFetcherRunning(args.trackId),
         flow4 = romajiFlow,
@@ -105,9 +114,12 @@ internal class LyricsViewModel @Inject constructor(
                 artworkUrl = track.artworkUrl,
                 lyrics = lyrics,
                 romaji = romaji,
-                translation = translation.orEmpty(),
-                translationFailed = translation == null,
+                translation = translation.lines.orEmpty(),
+                translationFailed = translation.lines == null,
                 translationAvailable = preferences.lyricsTranslationConfig.apiKey.isNotBlank(),
+                translationButtonVisible = preferences.lyricsStyle.showTranslation &&
+                        preferences.lyricsTranslationConfig.apiKey.isNotBlank() &&
+                        !translation.isActive,
                 trackDuration = track.duration,
                 recognizedAt = track.recognizedAt,
                 recognitionDate = track.recognitionDate,
@@ -125,6 +137,19 @@ internal class LyricsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000L),
             initialValue = LyricsUiState.Loading
         )
+
+    fun requestTranslation() {
+        val lyrics = (uiStateStream.value as? LyricsUiState.Success)?.lyrics ?: return
+        translationRequestedLines.value = lyrics.contentLines()
+    }
+
+    private fun Lyrics.contentLines() = when (this) {
+        is PlainLyrics -> plain.lines()
+        is SyncedLyrics -> lines.map { it.content }
+    }
+
+    // Lines are null if the translation has failed
+    private data class TranslationState(val isActive: Boolean, val lines: Map<String, String>?)
 
     fun setLyricsStyle(newStyle: LyricsStyle) {
         viewModelScope.launch {
@@ -166,6 +191,7 @@ internal sealed class LyricsUiState {
         val translation: Map<String, String>,
         val translationFailed: Boolean,
         val translationAvailable: Boolean,
+        val translationButtonVisible: Boolean,
         val trackDuration: Duration?,
         val recognizedAt: Duration?,
         val recognitionDate: Instant,

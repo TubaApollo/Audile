@@ -12,6 +12,7 @@ import com.mrsep.musicrecognizer.core.domain.preferences.PreferencesRepository
 import com.mrsep.musicrecognizer.core.domain.recognition.AutoRecognitionInteractor
 import com.mrsep.musicrecognizer.core.domain.recognition.NetworkMonitor
 import com.mrsep.musicrecognizer.core.domain.recognition.model.RecognitionStatus
+import com.mrsep.musicrecognizer.core.domain.track.NowPlayingMonitor
 import com.mrsep.musicrecognizer.feature.recognition.di.MainScreenStatusHolder
 import com.mrsep.musicrecognizer.feature.recognition.RecognitionStatusHolder
 import com.mrsep.musicrecognizer.feature.recognition.platform.VibrationManager
@@ -44,6 +45,7 @@ internal class RecognitionViewModel @Inject constructor(
     preferencesRepository: PreferencesRepository,
     networkMonitor: NetworkMonitor,
     autoRecognitionInteractor: AutoRecognitionInteractor,
+    nowPlayingMonitor: NowPlayingMonitor,
 ) : ViewModel() {
 
     val recognitionState = statusHolder.status
@@ -53,6 +55,12 @@ internal class RecognitionViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         null
+    )
+
+    val nowPlaying = nowPlayingMonitor.trackFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null
     )
 
     val isOffline = networkMonitor.isOffline.stateIn(

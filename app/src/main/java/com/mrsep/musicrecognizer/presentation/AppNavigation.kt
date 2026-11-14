@@ -282,6 +282,9 @@ private fun BarNavHost(
                         from = from
                     )
                 },
+                onNavigateToLyricsScreen = { trackId, from ->
+                    outerNavController.navigateToLyricsScreen(trackId = trackId, from = from)
+                },
                 onNavigateToQueueScreen = { _, from ->
                     innerNavController.navigateToQueueScreen(
                         from = from,

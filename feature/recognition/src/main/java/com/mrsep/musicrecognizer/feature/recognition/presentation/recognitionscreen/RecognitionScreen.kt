@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -77,6 +79,7 @@ internal fun RecognitionScreen(
     pendingRecognitionRequest: RecognitionRequest?,
     onResetPendingRecognitionRequest: () -> Unit,
     onNavigateToTrackScreen: (trackId: String) -> Unit,
+    onNavigateToLyricsScreen: (trackId: String) -> Unit,
     onNavigateToQueueScreen: (recognitionId: Int?) -> Unit,
     onNavigateToPreferencesScreen: () -> Unit,
 ) {
@@ -84,6 +87,7 @@ internal fun RecognitionScreen(
     val recognizeStatus by viewModel.recognitionState.collectAsStateWithLifecycle()
     val soundLevelState = viewModel.soundLevelFlow.collectAsStateWithLifecycle(initialValue = 0f)
     val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
+    val nowPlaying by viewModel.nowPlaying.collectAsStateWithLifecycle()
     val preferences by viewModel.preferences.collectAsStateWithLifecycle()
     val autoRecognitionState by viewModel.autoRecognitionState.collectAsStateWithLifecycle()
     val defaultCaptureMode = preferences?.defaultAudioCaptureMode
@@ -266,6 +270,30 @@ internal fun RecognitionScreen(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(8.dp)
+            )
+        }
+        nowPlaying?.let { track ->
+            ElevatedAssistChip(
+                onClick = { onNavigateToLyricsScreen(track.id) },
+                label = {
+                    Text(
+                        text = listOf(track.title, track.artist)
+                            .filter { it.isNotBlank() }
+                            .joinToString(" · "),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(UiR.drawable.outline_lyrics_24),
+                        contentDescription = stringResource(StringsR.string.show_lyrics),
+                        modifier = Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 48.dp, vertical = 8.dp)
             )
         }
         Box {

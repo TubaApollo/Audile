@@ -110,6 +110,7 @@ internal fun UserPreferencesProto.toDomain() = UserPreferences(
         alignToStart = lyricsStyle.alignToStart,
         showRomaji = lyricsStyle.showRomaji,
         showTranslation = lyricsStyle.showTranslation,
+        alwaysTranslate = lyricsStyle.alwaysTranslate,
     ),
     lyricsTranslationConfig = LyricsTranslationConfig(
         apiKey = lyricsTranslationConfig.apiKey,

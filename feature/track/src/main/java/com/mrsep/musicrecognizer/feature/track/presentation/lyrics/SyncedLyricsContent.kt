@@ -11,8 +11,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
@@ -68,15 +72,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -103,7 +103,7 @@ import com.mrsep.musicrecognizer.core.strings.R as StringsR
 
 internal const val SelectionAnimationStiffness = Spring.StiffnessMedium
 private const val InactiveTextAlpha = 0.5f
-private val SecondaryLineSpanStyle = SpanStyle(fontSize = 0.7.em, fontWeight = FontWeight.Normal)
+private const val SecondaryLineScale = 0.7f
 private const val ScrollAnimationDurationMs = 350
 private val ScrollAnimationEasing = FastOutSlowInEasing
 
@@ -470,8 +470,10 @@ private fun LyricLine(
         animationSpec = spring(stiffness = SelectionAnimationStiffness),
         label = "selectionContainerAlpha"
     )
-    Text(
-        text = lyricLineText(line, romaji, translation),
+    LyricLineText(
+        line = line,
+        romaji = romaji,
+        translation = translation,
         style = style,
         modifier = modifier
             .graphicsLayer {
@@ -696,11 +698,37 @@ private fun List<SyncedLyrics.Line>.joinLines(indexes: Set<Int>): String {
     return joinLines(indexes) { it.content }
 }
 
-internal fun lyricLineText(line: String, romaji: String?, translation: String?) = buildAnnotatedString {
-    append(line)
-    withStyle(SecondaryLineSpanStyle) {
-        romaji?.let { append("\n$romaji") }
-        translation?.let { append("\n$translation") }
+@Composable
+internal fun LyricLineText(
+    line: String,
+    romaji: String?,
+    translation: String?,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = when (style.textAlign) {
+            TextAlign.Center -> Alignment.CenterHorizontally
+            else -> Alignment.Start
+        }
+    ) {
+        Text(text = line, style = style)
+        val secondaryStyle = style.copy(
+            fontSize = style.fontSize * SecondaryLineScale,
+            lineHeight = style.lineHeight * SecondaryLineScale,
+            fontWeight = FontWeight.Normal,
+        )
+        // Expand smoothly to avoid layout jumps when lines arrive one by one
+        for (secondaryLine in listOf(romaji, translation)) {
+            AnimatedVisibility(
+                visible = secondaryLine != null,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically(),
+            ) {
+                Text(text = secondaryLine.orEmpty(), style = secondaryStyle)
+            }
+        }
     }
 }
 

@@ -303,6 +303,15 @@ internal fun PreferencesScreen(
                                 )
                             }
                         }
+                        PreferenceClickableItem(
+                            title = stringResource(StringsR.string.pref_title_now_playing),
+                            subtitle = stringResource(StringsR.string.pref_subtitle_now_playing),
+                            onItemClick = {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                                )
+                            }
+                        )
                         var showLyricsTranslationDialog by rememberSaveable { mutableStateOf(false) }
                         PreferenceClickableItem(
                             title = stringResource(StringsR.string.pref_title_lyrics_translation),

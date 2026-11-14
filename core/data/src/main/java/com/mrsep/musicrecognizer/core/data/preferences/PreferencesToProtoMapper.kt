@@ -99,6 +99,7 @@ internal fun LyricsStyle.toProto() = lyricsStyleProto {
     alignToStart = this@toProto.alignToStart
     showRomaji = this@toProto.showRomaji
     showTranslation = this@toProto.showTranslation
+    alwaysTranslate = this@toProto.alwaysTranslate
 }
 
 internal fun LyricsTranslationConfig.toProto() = lyricsTranslationConfigProto {
