@@ -68,7 +68,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -104,7 +103,7 @@ import com.mrsep.musicrecognizer.core.strings.R as StringsR
 
 internal const val SelectionAnimationStiffness = Spring.StiffnessMedium
 private const val InactiveTextAlpha = 0.5f
-private val RomajiSpanStyle = SpanStyle(fontSize = 0.7.em, fontWeight = FontWeight.Normal)
+private val SecondaryLineSpanStyle = SpanStyle(fontSize = 0.7.em, fontWeight = FontWeight.Normal)
 private const val ScrollAnimationDurationMs = 350
 private val ScrollAnimationEasing = FastOutSlowInEasing
 
@@ -112,6 +111,7 @@ private val ScrollAnimationEasing = FastOutSlowInEasing
 internal fun SyncedLyricsContent(
     lyrics: SyncedLyrics,
     romaji: Map<String, String>,
+    translation: Map<String, String>,
     title: String,
     artist: String,
     artworkThumbUrl: String?,
@@ -315,6 +315,7 @@ internal fun SyncedLyricsContent(
                         LyricLine(
                             line = line,
                             romaji = romaji[line],
+                            translation = translation[line],
                             time = timestamp,
                             nextTime = nextTimestamp,
                             activeStart = activeStart,
@@ -432,6 +433,7 @@ private fun LyricLine(
     modifier: Modifier = Modifier,
     line: String,
     romaji: String?,
+    translation: String?,
     time: Duration,
     nextTime: Duration,
     activeStart: Duration,
@@ -469,7 +471,7 @@ private fun LyricLine(
         label = "selectionContainerAlpha"
     )
     Text(
-        text = lyricLineText(line, romaji),
+        text = lyricLineText(line, romaji, translation),
         style = style,
         modifier = modifier
             .graphicsLayer {
@@ -694,11 +696,11 @@ private fun List<SyncedLyrics.Line>.joinLines(indexes: Set<Int>): String {
     return joinLines(indexes) { it.content }
 }
 
-internal fun lyricLineText(line: String, romaji: String?): AnnotatedString {
-    if (romaji == null) return AnnotatedString(line)
-    return buildAnnotatedString {
-        appendLine(line)
-        withStyle(RomajiSpanStyle) { append(romaji) }
+internal fun lyricLineText(line: String, romaji: String?, translation: String?) = buildAnnotatedString {
+    append(line)
+    withStyle(SecondaryLineSpanStyle) {
+        romaji?.let { append("\n$romaji") }
+        translation?.let { append("\n$translation") }
     }
 }
 

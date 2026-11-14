@@ -8,6 +8,7 @@ import com.mrsep.musicrecognizer.core.domain.preferences.AuddConfig
 import com.mrsep.musicrecognizer.core.domain.preferences.AudioCaptureMode
 import com.mrsep.musicrecognizer.core.domain.preferences.FallbackPolicy
 import com.mrsep.musicrecognizer.core.domain.preferences.HapticFeedback
+import com.mrsep.musicrecognizer.core.domain.preferences.LyricsTranslationConfig
 import com.mrsep.musicrecognizer.core.domain.preferences.PreferencesRepository
 import com.mrsep.musicrecognizer.core.domain.preferences.ThemeMode
 import com.mrsep.musicrecognizer.core.domain.preferences.UserPreferences
@@ -130,6 +131,12 @@ internal class PreferencesViewModel @Inject constructor(
     fun setHapticFeedback(hapticFeedback: HapticFeedback) {
         viewModelScope.launch {
             preferencesRepository.setHapticFeedback(hapticFeedback)
+        }
+    }
+
+    fun setLyricsTranslationConfig(value: LyricsTranslationConfig) {
+        viewModelScope.launch {
+            preferencesRepository.setLyricsTranslationConfig(value)
         }
     }
 

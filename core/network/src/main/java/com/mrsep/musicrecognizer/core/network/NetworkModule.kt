@@ -91,7 +91,7 @@ internal object NetworkModule {
                     }
                 }
                 level = LogLevel.ALL
-                sanitizeHeader { header -> header == HttpHeaders.Authorization }
+                sanitizeHeader { header -> header == HttpHeaders.Authorization || header == "x-api-key" }
             }
         }
     }

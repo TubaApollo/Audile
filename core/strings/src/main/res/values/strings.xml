@@ -201,6 +201,8 @@
     <string name="bold_text">Bold text</string>
     <string name="high_contrast_text">High-contrast text</string>
     <string name="show_romaji">Romaji for Japanese lyrics</string>
+    <string name="show_translation">Show translation</string>
+    <string name="lyrics_translation_failed">Failed to translate lyrics</string>
     <!-- Preferences screen -->
     <string name="preferences">Preferences</string>
     <string name="pref_group_recognition">Recognition</string>
@@ -275,6 +277,12 @@
     <string name="music_services_links_dialog">Choose the music services for which you would like to see web links (if available):</string>
     <string name="pref_group_misc">Misc</string>
     <string name="pref_title_vibration_feedback">Vibration feedback</string>
+    <string name="pref_title_lyrics_translation">Lyrics translation</string>
+    <string name="pref_subtitle_lyrics_translation">Translate lyrics with Claude using your own API key</string>
+    <string name="lyrics_translation_dialog_message">Lyrics are sent to the Claude API and translated by the selected model. Requests are billed to your API key.</string>
+    <string name="lyrics_translation_model">Model</string>
+    <string name="lyrics_translation_language">Language</string>
+    <string name="lyrics_translation_system_language">System language</string>
     <string name="vibration_feedback_dialog_title">Vibration</string>
     <string name="vibration_feedback_dialog_message">Configure vibration feedback for certain in-app actions:</string>
     <string name="vibration_feedback_dialog_vibrate_on_tap">Vibrate on tap</string>
@@ -455,6 +463,7 @@
     <string name="usdt_trc_20" translatable="false">USDT (TRC-20)</string>
     <!-- Untranslatable, as these terms are used only in English on recognition provider websites (dashboards, guides) -->
     <string name="api_token" translatable="false">API token</string>
+    <string name="claude_api_key" translatable="false">Claude API key</string>
     <string name="host" translatable="false">Host</string>
     <string name="access_key" translatable="false">Access key</string>
     <string name="access_secret" translatable="false">Access secret</string>

@@ -1,11 +1,13 @@
 package com.mrsep.musicrecognizer.core.metadata.di
 
 import com.mrsep.musicrecognizer.core.domain.track.LyricsRomanizer
+import com.mrsep.musicrecognizer.core.domain.track.LyricsTranslator
 import com.mrsep.musicrecognizer.core.metadata.artwork.ArtworkFetcher
 import com.mrsep.musicrecognizer.core.metadata.artwork.ArtworkFetcherImpl
 import com.mrsep.musicrecognizer.core.metadata.lyrics.LyricsFetcher
 import com.mrsep.musicrecognizer.core.metadata.lyrics.LyricsFetcherImpl
 import com.mrsep.musicrecognizer.core.metadata.lyrics.LyricsRomanizerImpl
+import com.mrsep.musicrecognizer.core.metadata.lyrics.LyricsTranslatorImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -24,6 +26,10 @@ internal interface MetadataModule {
     @Binds
     @Singleton
     fun bindLyricsRomanizer(impl: LyricsRomanizerImpl): LyricsRomanizer
+
+    @Binds
+    @Singleton
+    fun bindLyricsTranslator(impl: LyricsTranslatorImpl): LyricsTranslator
 
     @Binds
     @Singleton

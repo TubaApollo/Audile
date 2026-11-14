@@ -16,6 +16,7 @@ import com.mrsep.musicrecognizer.core.domain.preferences.AutoBackupResult
 import com.mrsep.musicrecognizer.core.domain.preferences.FallbackPolicy
 import com.mrsep.musicrecognizer.core.domain.preferences.HapticFeedback
 import com.mrsep.musicrecognizer.core.domain.preferences.LyricsStyle
+import com.mrsep.musicrecognizer.core.domain.preferences.LyricsTranslationConfig
 import com.mrsep.musicrecognizer.core.domain.preferences.PreferencesRepository
 import com.mrsep.musicrecognizer.core.domain.preferences.SnappedWindowPosition
 import com.mrsep.musicrecognizer.core.domain.preferences.ThemeMode
@@ -125,6 +126,10 @@ internal class PreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun setLyricsStyle(value: LyricsStyle) {
         safeWriter { lyricsStyle = value.toProto() }
+    }
+
+    override suspend fun setLyricsTranslationConfig(value: LyricsTranslationConfig) {
+        safeWriter { lyricsTranslationConfig = value.toProto() }
     }
 
     override suspend fun setTrackFilter(value: TrackFilter) {

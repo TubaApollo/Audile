@@ -60,6 +60,7 @@ message UserPreferencesProto {
     bool is_high_contrast = 20;
     bool align_to_start = 42;
     bool show_romaji = 57;
+    bool show_translation = 59;
   }
 
   LyricsStyleProto lyrics_style = 21;
@@ -145,8 +146,16 @@ message UserPreferencesProto {
 
   bool allow_queue_on_low_battery = 56;
 
-  // NEXT AVAILABLE ID: 58
+  LyricsTranslationConfigProto lyrics_translation_config = 58;
 
+  // NEXT AVAILABLE ID: 60
+
+}
+
+message LyricsTranslationConfigProto {
+  string api_key = 1;
+  string model = 2;
+  string language = 3;
 }
 
 message AutoBackupPreferencesProto {

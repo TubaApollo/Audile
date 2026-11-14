@@ -21,6 +21,7 @@ import com.mrsep.musicrecognizer.core.domain.preferences.FavoritesMode
 import com.mrsep.musicrecognizer.core.domain.preferences.FontSize
 import com.mrsep.musicrecognizer.core.domain.preferences.HapticFeedback
 import com.mrsep.musicrecognizer.core.domain.preferences.LyricsStyle
+import com.mrsep.musicrecognizer.core.domain.preferences.LyricsTranslationConfig
 import com.mrsep.musicrecognizer.core.domain.preferences.OrderBy
 import com.mrsep.musicrecognizer.core.domain.preferences.ScreenSide
 import com.mrsep.musicrecognizer.core.domain.preferences.SnappedWindowPosition
@@ -108,6 +109,12 @@ internal fun UserPreferencesProto.toDomain() = UserPreferences(
         isHighContrast = lyricsStyle.isHighContrast,
         alignToStart = lyricsStyle.alignToStart,
         showRomaji = lyricsStyle.showRomaji,
+        showTranslation = lyricsStyle.showTranslation,
+    ),
+    lyricsTranslationConfig = LyricsTranslationConfig(
+        apiKey = lyricsTranslationConfig.apiKey,
+        model = lyricsTranslationConfig.model.ifEmpty { LyricsTranslationConfig.DEFAULT_MODEL },
+        language = lyricsTranslationConfig.language,
     ),
     trackFilter = TrackFilter(
         favoritesMode = when (trackFilter.favoritesMode) {

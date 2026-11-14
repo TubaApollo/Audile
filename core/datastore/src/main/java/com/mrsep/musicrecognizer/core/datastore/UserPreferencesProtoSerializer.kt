@@ -82,6 +82,7 @@ internal object UserPreferencesProtoSerializer : Serializer<UserPreferencesProto
                 isHighContrast = false
                 alignToStart = false
                 showRomaji = false
+                showTranslation = false
             }
             trackFilter = trackFilterProto {
                 favoritesMode = UserPreferencesProto.FavoritesModeProto.ALL

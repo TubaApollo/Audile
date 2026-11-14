@@ -24,6 +24,7 @@ import com.mrsep.musicrecognizer.core.strings.R as StringsR
 internal fun LyricsStyleBottomSheet(
     sheetState: SheetState,
     style: LyricsStyle,
+    translationAvailable: Boolean,
     onStyleChanged: (LyricsStyle) -> Unit,
     onDismissClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -98,6 +99,14 @@ internal fun LyricsStyleBottomSheet(
                     onClick = {
                         onStyleChanged(style.copy(showRomaji = !style.showRomaji))
                     }
+                )
+                BottomBarSwitch(
+                    title = stringResource(StringsR.string.show_translation),
+                    checked = style.showTranslation,
+                    onClick = {
+                        onStyleChanged(style.copy(showTranslation = !style.showTranslation))
+                    },
+                    enabled = translationAvailable,
                 )
             }
             Spacer(Modifier.height(16.dp))

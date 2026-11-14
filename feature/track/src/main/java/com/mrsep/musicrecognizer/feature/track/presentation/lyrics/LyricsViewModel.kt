@@ -9,16 +9,20 @@ import com.mrsep.musicrecognizer.core.domain.preferences.ThemeMode
 import com.mrsep.musicrecognizer.core.domain.preferences.PreferencesRepository
 import com.mrsep.musicrecognizer.core.domain.recognition.ResultNotificationManager
 import com.mrsep.musicrecognizer.core.domain.recognition.TrackMetadataFetchManager
+import com.mrsep.musicrecognizer.core.domain.recognition.model.NetworkResult
 import com.mrsep.musicrecognizer.core.domain.track.LyricsRomanizer
+import com.mrsep.musicrecognizer.core.domain.track.LyricsTranslator
 import com.mrsep.musicrecognizer.core.domain.track.TrackRepository
 import com.mrsep.musicrecognizer.core.domain.track.model.Lyrics
 import com.mrsep.musicrecognizer.core.domain.track.model.PlainLyrics
 import com.mrsep.musicrecognizer.core.domain.track.model.SyncedLyrics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
@@ -35,23 +39,51 @@ internal class LyricsViewModel @Inject constructor(
     trackMetadataFetchManager: TrackMetadataFetchManager,
     private val resultNotificationManager: ResultNotificationManager,
     private val lyricsRomanizer: LyricsRomanizer,
+    private val lyricsTranslator: LyricsTranslator,
 ) : ViewModel() {
 
     private val args = LyricsScreen.Args(savedStateHandle)
 
+    private val lyricsLinesFlow = trackRepository.getTrackFlow(args.trackId)
+        .map { track ->
+            when (val lyrics = track?.lyrics) {
+                is PlainLyrics -> lyrics.plain.lines()
+                is SyncedLyrics -> lyrics.lines.map { it.content }
+                null -> emptyList()
+            }
+        }
+        .distinctUntilChanged()
+
     // Emitted separately so that the lyrics are not held back by the romanization
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val romajiFlow = combine(
-        flow = trackRepository.getTrackFlow(args.trackId).map { track -> track?.lyrics },
+    private val romajiFlow: Flow<Map<String, String>> = combine(
+        flow = lyricsLinesFlow,
         flow2 = preferencesRepository.userPreferencesFlow.map { it.lyricsStyle.showRomaji },
-    ) { lyrics, showRomaji -> lyrics.takeIf { showRomaji } }
+    ) { lines, showRomaji -> lines.takeIf { showRomaji } }
         .distinctUntilChanged()
-        .transformLatest { lyrics ->
+        .transformLatest { lines ->
             emit(emptyMap())
-            when (lyrics) {
-                is PlainLyrics -> emit(lyricsRomanizer.romanize(lyrics.plain.lines()))
-                is SyncedLyrics -> emit(lyricsRomanizer.romanize(lyrics.lines.map { it.content }))
-                null -> Unit
+            lines?.let { emit(lyricsRomanizer.romanize(lines)) }
+        }
+
+    // Emits null if the translation has failed
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val translationFlow: Flow<Map<String, String>?> = combine(
+        flow = lyricsLinesFlow,
+        flow2 = preferencesRepository.userPreferencesFlow.map { preferences ->
+            preferences.lyricsTranslationConfig.takeIf { config ->
+                preferences.lyricsStyle.showTranslation && config.apiKey.isNotBlank()
+            }
+        },
+    ) { lines, config -> config?.let { lines to config } }
+        .distinctUntilChanged()
+        .transformLatest { request ->
+            emit(emptyMap())
+            request?.let { (lines, config) ->
+                emitAll(
+                    lyricsTranslator.translate(lines, config)
+                        .map { result -> (result as? NetworkResult.Success)?.data }
+                )
             }
         }
 
@@ -60,7 +92,8 @@ internal class LyricsViewModel @Inject constructor(
         flow2 = preferencesRepository.userPreferencesFlow,
         flow3 = trackMetadataFetchManager.isLyricsFetcherRunning(args.trackId),
         flow4 = romajiFlow,
-    ) { track, preferences, isLyricsFetcherRunning, romaji ->
+        flow5 = translationFlow,
+    ) { track, preferences, isLyricsFetcherRunning, romaji, translation ->
         if (track == null) return@combine LyricsUiState.TrackNotFound
         if (isLyricsFetcherRunning) return@combine LyricsUiState.Loading
         track.lyrics?.let { lyrics ->
@@ -72,6 +105,9 @@ internal class LyricsViewModel @Inject constructor(
                 artworkUrl = track.artworkUrl,
                 lyrics = lyrics,
                 romaji = romaji,
+                translation = translation.orEmpty(),
+                translationFailed = translation == null,
+                translationAvailable = preferences.lyricsTranslationConfig.apiKey.isNotBlank(),
                 trackDuration = track.duration,
                 recognizedAt = track.recognizedAt,
                 recognitionDate = track.recognitionDate,
@@ -127,6 +163,9 @@ internal sealed class LyricsUiState {
         val artworkUrl: String?,
         val lyrics: Lyrics,
         val romaji: Map<String, String>,
+        val translation: Map<String, String>,
+        val translationFailed: Boolean,
+        val translationAvailable: Boolean,
         val trackDuration: Duration?,
         val recognizedAt: Duration?,
         val recognitionDate: Instant,

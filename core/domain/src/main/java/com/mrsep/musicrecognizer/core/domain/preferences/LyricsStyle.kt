@@ -6,4 +6,5 @@ data class LyricsStyle(
     val isHighContrast: Boolean,
     val alignToStart: Boolean,
     val showRomaji: Boolean,
+    val showTranslation: Boolean,
 )

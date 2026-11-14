@@ -58,6 +58,7 @@ import kotlin.time.Duration.Companion.seconds
 internal fun PlainLyricsContent(
     lyrics: String,
     romaji: Map<String, String>,
+    translation: Map<String, String>,
     title: String,
     artist: String,
     artworkThumbUrl: String?,
@@ -190,6 +191,7 @@ internal fun PlainLyricsContent(
                     LyricLine(
                         line = line,
                         romaji = romaji[line],
+                        translation = translation[line],
                         style = lyricsTextStyle,
                         isSelected = multiSelectionState.isSelected(index),
                         onClick = {
@@ -263,6 +265,7 @@ private fun LyricLine(
     modifier: Modifier = Modifier,
     line: String,
     romaji: String?,
+    translation: String?,
     style: TextStyle,
     selectionContainerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     isSelected: Boolean,
@@ -275,7 +278,7 @@ private fun LyricLine(
         label = "selectionContainerAlpha"
     )
     Text(
-        text = lyricLineText(line, romaji),
+        text = lyricLineText(line, romaji, translation),
         style = style,
         modifier = modifier
             .drawBehind {

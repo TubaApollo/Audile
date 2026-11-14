@@ -5,6 +5,7 @@ import com.mrsep.musicrecognizer.core.datastore.AutoBackupErrorTypeProto
 import com.mrsep.musicrecognizer.core.datastore.autoBackupFailureProto
 import com.mrsep.musicrecognizer.core.datastore.autoBackupResultProto
 import com.mrsep.musicrecognizer.core.datastore.autoBackupSuccessProto
+import com.mrsep.musicrecognizer.core.datastore.lyricsTranslationConfigProto
 import com.mrsep.musicrecognizer.core.datastore.MusicServiceProto
 import com.mrsep.musicrecognizer.core.datastore.RecognitionProviderProto
 import com.mrsep.musicrecognizer.core.datastore.ScreenSideProto
@@ -30,6 +31,7 @@ import com.mrsep.musicrecognizer.core.domain.preferences.FavoritesMode
 import com.mrsep.musicrecognizer.core.domain.preferences.FontSize
 import com.mrsep.musicrecognizer.core.domain.preferences.HapticFeedback
 import com.mrsep.musicrecognizer.core.domain.preferences.LyricsStyle
+import com.mrsep.musicrecognizer.core.domain.preferences.LyricsTranslationConfig
 import com.mrsep.musicrecognizer.core.domain.preferences.OrderBy
 import com.mrsep.musicrecognizer.core.domain.preferences.ScreenSide
 import com.mrsep.musicrecognizer.core.domain.preferences.SnappedWindowPosition
@@ -96,6 +98,13 @@ internal fun LyricsStyle.toProto() = lyricsStyleProto {
     isHighContrast = this@toProto.isHighContrast
     alignToStart = this@toProto.alignToStart
     showRomaji = this@toProto.showRomaji
+    showTranslation = this@toProto.showTranslation
+}
+
+internal fun LyricsTranslationConfig.toProto() = lyricsTranslationConfigProto {
+    apiKey = this@toProto.apiKey
+    model = this@toProto.model
+    language = this@toProto.language
 }
 
 internal fun FontSize.toProto() = when (this) {

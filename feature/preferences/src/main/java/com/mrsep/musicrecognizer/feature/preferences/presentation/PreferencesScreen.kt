@@ -303,6 +303,22 @@ internal fun PreferencesScreen(
                                 )
                             }
                         }
+                        var showLyricsTranslationDialog by rememberSaveable { mutableStateOf(false) }
+                        PreferenceClickableItem(
+                            title = stringResource(StringsR.string.pref_title_lyrics_translation),
+                            subtitle = stringResource(StringsR.string.pref_subtitle_lyrics_translation),
+                            onItemClick = { showLyricsTranslationDialog = true }
+                        )
+                        if (showLyricsTranslationDialog) {
+                            LyricsTranslationDialog(
+                                config = uiState.preferences.lyricsTranslationConfig,
+                                onSaveClick = { config ->
+                                    viewModel.setLyricsTranslationConfig(config)
+                                    showLyricsTranslationDialog = false
+                                },
+                                onDismissClick = { showLyricsTranslationDialog = false },
+                            )
+                        }
                         PreferenceClickableItem(
                             title = stringResource(StringsR.string.pref_title_backup_and_restore),
                             subtitle = stringResource(StringsR.string.pref_subtitle_backup_and_restore),

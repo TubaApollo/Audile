@@ -27,6 +27,7 @@ interface PreferencesRepository {
     suspend fun setArtworkBasedThemeEnabled(value: Boolean)
     suspend fun setRequiredMusicServices(services: List<MusicService>)
     suspend fun setLyricsStyle(value: LyricsStyle)
+    suspend fun setLyricsTranslationConfig(value: LyricsTranslationConfig)
     suspend fun setTrackFilter(value: TrackFilter)
     suspend fun setHapticFeedback(value: HapticFeedback)
     suspend fun setUseGridForLibrary(value: Boolean)

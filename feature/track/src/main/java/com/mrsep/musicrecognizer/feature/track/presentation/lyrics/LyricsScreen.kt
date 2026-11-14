@@ -1,5 +1,6 @@
 package com.mrsep.musicrecognizer.feature.track.presentation.lyrics
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +34,7 @@ import com.mrsep.musicrecognizer.core.ui.components.LoadingStub
 import com.mrsep.musicrecognizer.feature.track.presentation.track.TrackNotFoundMessage
 import com.mrsep.musicrecognizer.feature.track.presentation.track.shouldUseDarkTheme
 import com.mrsep.musicrecognizer.core.ui.theme.SwitchingMusicRecognizerTheme
+import com.mrsep.musicrecognizer.core.strings.R as StringsR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +80,11 @@ internal fun LyricsScreen(
             LaunchedEffect(uiState.isTrackViewed) {
                 if (!uiState.isTrackViewed) viewModel.setTrackAsViewed(uiState.trackId)
             }
+            val context = LocalContext.current
+            LaunchedEffect(uiState.translationFailed) {
+                if (!uiState.translationFailed) return@LaunchedEffect
+                Toast.makeText(context, StringsR.string.lyrics_translation_failed, Toast.LENGTH_LONG).show()
+            }
             val useDarkTheme = shouldUseDarkTheme(uiState.themeMode)
 
             SwitchingMusicRecognizerTheme(
@@ -94,6 +102,7 @@ internal fun LyricsScreen(
                         is PlainLyrics -> PlainLyricsContent(
                             lyrics = uiState.lyrics.plain,
                             romaji = uiState.romaji,
+                            translation = uiState.translation,
                             title = uiState.title,
                             artist = uiState.artist,
                             artworkThumbUrl = uiState.artworkThumbUrl,
@@ -114,6 +123,7 @@ internal fun LyricsScreen(
                         is SyncedLyrics -> SyncedLyricsContent(
                             lyrics = lyrics,
                             romaji = uiState.romaji,
+                            translation = uiState.translation,
                             title = uiState.title,
                             artist = uiState.artist,
                             artworkThumbUrl = uiState.artworkThumbUrl,
@@ -139,6 +149,7 @@ internal fun LyricsScreen(
                             sheetState = lyricsStyleSheetState,
                             onDismissClick = { showLyricsStyleSheet = false },
                             style = uiState.lyricsStyle,
+                            translationAvailable = uiState.translationAvailable,
                             onStyleChanged = viewModel::setLyricsStyle,
                         )
                     }
